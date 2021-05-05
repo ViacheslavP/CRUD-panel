@@ -1,4 +1,4 @@
-package boot.viapivov.crudboot.security;
+package boot.viapivov.crudboot.service.security;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 

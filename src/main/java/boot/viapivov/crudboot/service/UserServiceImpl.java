@@ -2,17 +2,12 @@ package boot.viapivov.crudboot.service;
 
 import boot.viapivov.crudboot.dto.UserDto;
 import boot.viapivov.crudboot.model.Role;
-import boot.viapivov.crudboot.model.User;
 import boot.viapivov.crudboot.repository.RoleRepository;
 import boot.viapivov.crudboot.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +21,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
 
     @Transactional
     @Override
@@ -42,14 +36,14 @@ public class UserServiceImpl implements UserService {
                 add(new Role("ROLE_ADMIN"));
                 add(new Role("ROLE_USER"));
             }};
-
             add(UserDto
                     .builder()
-                    .username("admin")
+                    .email("admin@mail.ru")
                     .password("admin")
                     .roles(adminRole)
+                    .firstName("admin")
+                    .lastName("admin")
                     .build());
-
         }
     }
 
@@ -69,7 +63,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void update(UserDto user) {
-        if (!user.getUsername().startsWith("$2")) {
+        if (!user.getPassword().startsWith("$2")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         userRepository.save(user.toUser());
@@ -104,5 +98,4 @@ public class UserServiceImpl implements UserService {
     public Set<Role> getAllRoles() {
         return new HashSet<>(roleRepository.findAll());
     }
-
 }

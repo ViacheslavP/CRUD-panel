@@ -1,4 +1,4 @@
-package boot.viapivov.crudboot.security;
+package boot.viapivov.crudboot.service.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-
         auth.authenticationProvider(authProvider());
         auth.userDetailsService(userDetailsService);
     }
@@ -47,7 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("j_password")
                 // даем доступ к форме логина всем
                 .permitAll();
-
         http.logout()
                 // разрешаем делать логаут всем
                 .permitAll()
@@ -57,7 +55,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login?logout")
                 //выклчаем кроссдоменную секьюрность (на этапе обучения неважна)
                 .and().csrf().disable();
-
         http
                 // делаем страницу регистрации недоступной для авторизированных пользователей
                 .authorizeRequests()

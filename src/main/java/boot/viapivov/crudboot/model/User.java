@@ -35,6 +35,7 @@ public class User implements UserDetails {
     @Column
     private Integer age;
 
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "users_role",

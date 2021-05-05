@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.Set;
 
 @Data
@@ -16,7 +15,7 @@ import java.util.Set;
 public class UserDto {
 
     private Long id;
-    private String username;
+    private String email;
     private String password;
     private String firstName;
     private String lastName;
@@ -26,13 +25,12 @@ public class UserDto {
     public User toUser() {
         return new User(
                 id,
-                username,
+                email,
                 password,
                 firstName,
                 lastName,
                 age,
-                roles
-        );
+                roles);
     }
 
     public static UserDto fromUser(User user) {
@@ -41,7 +39,7 @@ public class UserDto {
         } else {
             return builder()
                     .id(user.getId())
-                    .username(user.getUsername())
+                    .email(user.getUsername())
                     .password(user.getPassword())
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
@@ -50,5 +48,4 @@ public class UserDto {
                     .build();
         }
     }
-
 }
