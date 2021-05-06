@@ -66,4 +66,5 @@ public class UserController {
         userService.removeById(id);
         return "redirect:/admin";
     }
+
 }
