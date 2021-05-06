@@ -1,4 +1,4 @@
-package boot.viapivov.crudboot.service.security;
+package boot.viapivov.crudboot.config.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
