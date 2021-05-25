@@ -30,6 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authProvider());
         auth.userDetailsService(userDetailsService);
+
     }
 
     @Override
@@ -62,7 +63,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login").anonymous()
                 // защищенные URL
                 .antMatchers("/user").access("hasAnyRole('USER')")
+                .antMatchers("/user/api/**").access("hasAnyRole('USER')")
                 .antMatchers("/admin").access("hasAnyRole('ADMIN')")
+                .antMatchers("/admin/api/**").access("hasRole('USER')")
                 .anyRequest().authenticated();
     }
 

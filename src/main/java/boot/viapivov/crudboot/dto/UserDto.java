@@ -2,6 +2,7 @@ package boot.viapivov.crudboot.dto;
 
 import boot.viapivov.crudboot.model.Role;
 import boot.viapivov.crudboot.model.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,32 +21,8 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private Integer age;
+
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private Set<Role> roles;
 
-    public User toUser() {
-        return new User(
-                id,
-                email,
-                password,
-                firstName,
-                lastName,
-                age,
-                roles);
-    }
-
-    public static UserDto fromUser(User user) {
-        if (user == null) {
-            return null;
-        } else {
-            return builder()
-                    .id(user.getId())
-                    .email(user.getUsername())
-                    .password(user.getPassword())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
-                    .age(user.getAge())
-                    .roles(user.getRoles())
-                    .build();
-        }
-    }
 }

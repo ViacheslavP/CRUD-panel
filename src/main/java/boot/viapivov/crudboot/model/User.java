@@ -14,6 +14,12 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(
+        name = "user-with-roles",
+        attributeNodes = {
+                @NamedAttributeNode("roles")
+        }
+)
 public class User implements UserDetails {
 
     @Id
@@ -35,8 +41,7 @@ public class User implements UserDetails {
     @Column
     private Integer age;
 
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_role",
             joinColumns = @JoinColumn(

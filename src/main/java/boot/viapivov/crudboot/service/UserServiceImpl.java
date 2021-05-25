@@ -4,10 +4,13 @@ import boot.viapivov.crudboot.dto.UserDto;
 import boot.viapivov.crudboot.model.Role;
 import boot.viapivov.crudboot.repository.RoleRepository;
 import boot.viapivov.crudboot.repository.UserRepository;
+import boot.viapivov.crudboot.util.Converter;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityNotFoundException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -51,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void add(UserDto user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user.toUser());
+        userRepository.save(Converter.dto2User(user));
     }
 
     @Transactional
@@ -66,21 +70,30 @@ public class UserServiceImpl implements UserService {
         if (!user.getPassword().startsWith("$2")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        userRepository.save(user.toUser());
+        userRepository.save(Converter.dto2User(user));
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<UserDto> getByUsername(String uname) {
-        UserDto user = UserDto.fromUser(userRepository.findByUsername(uname));
-        return Optional.ofNullable(user);
+
+        try {
+            UserDto user = Converter.user2Dto(userRepository.findByUsername(uname));
+            return Optional.of(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<UserDto> getById(Long id) {
-        UserDto user = UserDto.fromUser(userRepository.getById(id));
-        return Optional.ofNullable(user);
+        try {
+            UserDto user = Converter.user2Dto(userRepository.getById(id));
+            return Optional.of(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +102,7 @@ public class UserServiceImpl implements UserService {
         return userRepository
                 .findAll()
                 .stream()
-                .map(UserDto::fromUser)
+                .map(Converter::user2Dto)
                 .collect(Collectors.toList());
     }
 
