@@ -1,42 +1,98 @@
 "use strict";
 
 $(document).ready(function(){
-
-    let currentUserUrl = "http://localhost:8080/api/user";
-    let adminUrl = "http://localhost:8080/api/admin";
-    let getUserUrl = "http://localhost:8080/api/admin/get/";
-    let deleteUserUrl = "http://localhost:8080/api/admin/delete/";
-    let updateUserUrl = "http://localhost:8080/api/admin/update/";
-
-    //Fill the header
-    $.ajax({
-        type:"GET",
-        url:currentUserUrl,
-        dataType: "json",
-        success: function (response) {
-            // Filling the header
-            let result = "<strong>" + response.email + "</strong>" + " with roles " + getRolesFormat(response.roles);
-            $("#navBarHeader").append(result);
-        }
-    })
-
-    // Fill the user table
-    $.ajax({
-        type: "GET",
-        url: currentUserUrl,
-        dataType: "json",
-        success: function (response) {
-            let result = "<tr>" + lineUser(response) + "</tr>";
-            $("#userData").append(result);
-        }
-    })
+    // Fill user table
+    fillUser();
 
     // Fill admin table
-    $.ajax({
-        type: "GET",
-        url: adminUrl,
-        dataType: "json",
-        success: function (response) {
+    fillAdmin()
+
+    // Submit new user
+    $("#newUser").submit(function () {
+        addUser($(this))
+    })
+
+    // Update user
+    $(document).on('click', '.upd', function () {
+        let id = parseInt($(this).attr('id').substr(7));
+        $("#updateModal").modal('show');
+        fillModal("edit", id)
+
+        $("#updateForm").submit(function () {
+            updateUser($(this), id)
+        });
+    });
+
+
+    // Delete user
+    $(document).on('click', '.dlt', function () {
+        let id = parseInt($(this).attr('id').substr(7));
+        $("#deleteModal").modal('show');
+        fillModal("delete", id)
+
+        $("#deleteForm").submit(function () {
+            deleteUser(id)
+        })
+    });
+});
+
+//Utils
+
+let fillModal = function (btn = "", id) {
+    fetch("http://localhost:8080/api/admin/get/"+id, {method: "GET", credentials: "include"})
+        .then(x => x.json())
+        .then(response => {
+            $("#fn_" + btn).val(response.firstName)
+            $("#ln_" + btn).val(response.lastName)
+            $("#age_" + btn).val(response.age)
+            $("#email_" + btn).val(response.email)
+            $("#password_" + btn).val(response.password)
+            $("#roles_" + btn).empty().append(
+                "<option "
+                + (response.roles.filter(x => x.role === "ROLE_ADMIN").length === 1 ? "selected" : "")
+                + "> ADMIN </option> " +
+                "<option "
+                + (response.roles.filter(x => x.role === "ROLE_USER").length === 1  ? "selected" : "")
+                + ">USER</option>"
+            );
+        });
+}
+
+let deleteUser = function (id) {
+    fetch("http://localhost:8080/api/admin/delete/" + id, {method: "DELETE", credentials: "include"}).then()
+}
+
+let updateUser = function (user, id) {
+    fetch("http://localhost:8080/api/admin/update/" + id, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: "PUT",
+        credentials: "include",
+        body: JSON.stringify(user.serializeObject())
+    }).then();
+}
+
+let addUser = function (user) {
+    fetch("http://localhost:8080/api/admin/", {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify(user.serializeObject())
+    }).then();
+}
+
+let fillAdmin = function () {
+    fetch("http://localhost:8080/api/admin/", {
+        method: "GET",
+        credentials: "include"
+    })
+        .then(x=>x.json())
+        .then(response => {
             let result = "";
             let len = response.length
 
@@ -44,107 +100,27 @@ $(document).ready(function(){
                 result = result + "<tr>" + lineUser(response[i]) + lineButtons(response[i]) + "</tr>"
             }
             $("#tableOfUsers").append(result);
-        }
-    })
-
-    // Submit new user
-    $("#newUser").submit(function () {
-        $.ajax({
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            type: "POST",
-            url: adminUrl,
-            dataType: 'json',
-            data: JSON.stringify($(this).serializeObject())
-           })
-    })
-
-    // Update
-    $(document).on('click', '.upd', function () {
-        let id = parseInt($(this).attr('id').substr(7));
-        $("#updateModal").modal('show');
-
-        $.ajax({
-            url: getUserUrl + id,
-            type: "GET",
-            dataType: "json",
-            success: function (response) {
-                    $("#id_edit").val(response.id);
-                    $("#fn_edit").val(response.firstName);
-                    $("#ln_edit").val(response.lastName);
-                    $("#age_edit").val(response.age);
-                    $("#email_edit").val(response.email);
-                    $("#password_edit").val(response.password);
-                    $("#roles_edit").empty().append(
-                        "<option "
-                        + (response.roles.filter(x => x.role === "ROLE_ADMIN").length === 1 ? "selected" : "")
-                        + "> ADMIN </option> " +
-                        "<option "
-                        + (response.roles.filter(x => x.role === "ROLE_USER").length === 1  ? "selected" : "")
-                        + ">USER</option>"
-                    );
-            }
-        });
-        $("#updateForm").submit(function () {
-            $.ajax({
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                type: "PUT",
-                url: updateUserUrl + id,
-                dataType: 'json',
-                data: JSON.stringify($(this).serializeObject())
-            })
-
         })
+}
 
-    });
-
-
-    //Delete
-    $(document).on('click', '.dlt', function () {
-        let id = parseInt($(this).attr('id').substr(7));
-        $("#deleteModal").modal('show');
-
-        $.ajax({
-            url: getUserUrl + id,
-            type: "GET",
-            dataType: "json",
-            success: function (response) {
-                $("#fn_delete").val(response.firstName)
-                $("#ln_delete").val(response.lastName)
-                $("#age_delete").val(response.age)
-                $("#email_delete").val(response.email)
-                $("#password_delete").val(response.password)
-                $("#roles_delete").empty().append(
-                    "<option "
-                    + (response.roles.filter(x => x.role === "ROLE_ADMIN").length === 1 ? "selected" : "")
-                    + "> ADMIN </option> " +
-                    "<option "
-                    + (response.roles.filter(x => x.role === "ROLE_USER").length === 1  ? "selected" : "")
-                    + ">USER</option>"
-                );
-            }
-        });
-
-        $("#deleteForm").submit(function () {
-            $.ajax({
-                type: "DELETE",
-                url: deleteUserUrl + id,
-            })
-
-        })
+let fillUser = function () {
+    fetch("http://localhost:8080/api/user", {
+        method: "GET",
+        credentials: "include"
     })
-});
+        .then(x => x.json())
+        .then(response => {
+            // Filling the header
+            let head = "<strong>" + response.email + "</strong>" + " with roles " + getRolesFormat(response.roles);
+            $("#navBarHeader").append(head);
+            // Filling the usertable
+            let line = "<tr>" + lineUser(response) + "</tr>";
+            $("#userData").append(line);
 
-//Utils
-
+        });
+}
 
 let lineUser = function (user) {
-
     return "<td>" + user.id + "</td>" +
         "<td>" + (user.firstName==null ? "":user.firstName) + "</td> " +
         "<td>" + (user.lastName==null ? "":user.lastName) + "</td>" +
