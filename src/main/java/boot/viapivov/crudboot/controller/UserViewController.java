@@ -5,11 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class SimpleController {
+public class UserViewController {
 
     private final UserService userService;
 
-    public SimpleController(UserService userService) {
+    public UserViewController(UserService userService) {
         this.userService = userService;
     }
 
